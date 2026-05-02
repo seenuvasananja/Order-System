@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+  </Folder>
+  <Project Path="Application/OrderService.Application.csproj" />
+  <Project Path="OrderService.Domain/OrderService.Domain.csproj" />
+  <Project Path="OrderService.Infrastructure/OrderService.Infrastructure.csproj" />
+  <Project Path="OrderService/OrderService.API.csproj" />
+</Solution>
