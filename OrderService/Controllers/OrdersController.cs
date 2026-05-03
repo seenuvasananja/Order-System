@@ -8,23 +8,34 @@ namespace OrderService.API.Controllers
     [Route("api/orders")]
     public class OrdersController : ControllerBase
     {
-        private readonly IOrderService _service;
+        private readonly IOrderMangerService _service;
 
-        public OrdersController(IOrderService service)
+        public OrdersController(IOrderMangerService service)
         {
             _service = service;
         }
 
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            return Ok(_service.GetAll());
+            var result = await _service.GetAllAsync();
+            return Ok(result);
+        }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var result = await _service.GetByIdAsync(id);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            return Ok(result);
         }
 
         [HttpPost]
-        public IActionResult Create(CreateOrderDto dto)
+        public async Task<IActionResult> Create([FromBody] CreateOrderDto dto)
         {
-            var result = _service.Create(dto);
+            var result = await _service.CreateAsync(dto);
             return Ok(result);
         }
     }

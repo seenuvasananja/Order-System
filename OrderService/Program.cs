@@ -1,8 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using OrderService.API.Middleware;
 using OrderService.Application.Interfaces;
+using OrderService.Application.Services;
 using OrderService.Infrastructure.Data;
 using OrderService.Infrastructure.Repositories;
-using OrderService.Application.Services;
 
 namespace OrderService.Api
 {
@@ -33,8 +34,8 @@ namespace OrderService.Api
             }
 
             // DI
-            builder.Services.AddScoped<IOrderRepository, OrderRepository>();
-            builder.Services.AddScoped<IOrderService, OrderManager>();
+            builder.Services.AddScoped<IOrderMangerRepository, OrderManagerRepository>();
+            builder.Services.AddScoped<IOrderMangerService, OrderMangerService>();
 
 
             var app = builder.Build();
@@ -43,7 +44,10 @@ namespace OrderService.Api
             app.UseSwaggerUI();
 
             app.UseHttpsRedirection(); 
-            app.UseAuthorization(); 
+            app.UseAuthorization();
+
+            //Global Exception Handling
+            app.UseMiddleware<GlobalExceptionMiddleware>();
             app.MapControllers(); 
             app.Run();
         }
