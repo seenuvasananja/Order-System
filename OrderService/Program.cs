@@ -4,6 +4,7 @@ using OrderService.Application.Interfaces;
 using OrderService.Application.Services;
 using OrderService.Infrastructure.Data;
 using OrderService.Infrastructure.Repositories;
+using Serilog;
 
 namespace OrderService.Api
 {
@@ -13,9 +14,31 @@ namespace OrderService.Api
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-            builder.Services.AddControllers(); 
-            builder.Services.AddEndpointsApiExplorer(); 
+            // 🔥 Configure Serilog 
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Information()
+                .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                .WriteTo.File(
+                    path: "logs/log-.txt",
+                    rollingInterval: RollingInterval.Day,
+                    retainedFileCountLimit: 7,
+                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level}] [{RequestId}] {Message}{NewLine}{Exception}"
+                )
+                .WriteTo.File(
+                    path: "logs/error-.txt",
+                    rollingInterval: RollingInterval.Day,
+                    restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Error
+                )
+                .CreateLogger();
+
+            // 🔥 Plug Serilog 
+            builder.Host.UseSerilog();
+
+            // Add services
+            builder.Services.AddControllers();
+            builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
             // DB
@@ -37,18 +60,34 @@ namespace OrderService.Api
             builder.Services.AddScoped<IOrderMangerRepository, OrderManagerRepository>();
             builder.Services.AddScoped<IOrderMangerService, OrderMangerService>();
 
-
             var app = builder.Build();
 
-            app.UseSwagger(); 
+            app.UseSwagger();
             app.UseSwaggerUI();
 
-            app.UseHttpsRedirection(); 
+            app.UseHttpsRedirection();
             app.UseAuthorization();
 
-            //Global Exception Handling
+            // 🔥 Request logging
+            app.UseSerilogRequestLogging();
+
+            // 🔥 Correlation ID
+            app.Use(async (context, next) =>
+            {
+                var requestId = Guid.NewGuid().ToString();
+
+                context.Items["RequestId"] = requestId;
+
+                using (Serilog.Context.LogContext.PushProperty("RequestId", requestId))
+                {
+                    await next();
+                }
+            });
+
+            // Global Exception Handling
             app.UseMiddleware<GlobalExceptionMiddleware>();
-            app.MapControllers(); 
+
+            app.MapControllers();
             app.Run();
         }
     }
