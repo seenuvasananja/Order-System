@@ -1,12 +1,12 @@
 using Microsoft.EntityFrameworkCore;
-using OrderService.API.Middleware;
-using OrderService.Application.Interfaces;
-using OrderService.Application.Services;
-using OrderService.Infrastructure.Data;
-using OrderService.Infrastructure.Repositories;
+using ProductService.API.Middleware;
+using ProductService.Application.Interfaces;
+using ProductService.Application.Services;
+using ProductService.Infrastructure.Data;
+using ProductService.Infrastructure.Repositories;
 using Serilog;
 
-namespace OrderService.Api
+namespace ProductService.API
 {
     public class Program
     {
@@ -14,7 +14,7 @@ namespace OrderService.Api
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // 🔥 Configure Serilog 
+            // 🔥 Configure Serilog
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Information()
                 .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
@@ -33,7 +33,7 @@ namespace OrderService.Api
                 )
                 .CreateLogger();
 
-            // 🔥 Plug Serilog 
+            // 🔥 Plug Serilog into ASP.NET Core
             builder.Host.UseSerilog();
 
             // Add services
@@ -41,13 +41,13 @@ namespace OrderService.Api
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            // DB
+            // 🔥 DB Configuration (same as OrderService)
             var useInMemory = builder.Configuration.GetValue<bool>("UseInMemory");
 
             if (useInMemory)
             {
                 builder.Services.AddDbContext<AppDbContext>(opt =>
-                    opt.UseInMemoryDatabase("OrderDb"));
+                    opt.UseInMemoryDatabase("ProductDb"));
             }
             else
             {
@@ -56,9 +56,9 @@ namespace OrderService.Api
                         builder.Configuration.GetConnectionString("DefaultConnection")));
             }
 
-            // DI
-            builder.Services.AddScoped<IOrderMangerRepository, OrderManagerRepository>();
-            builder.Services.AddScoped<IOrderMangerService, OrderMangerService>();
+            // 🔥 DI
+            builder.Services.AddScoped<IProductManagerRepository, ProductManagerRepository>();
+            builder.Services.AddScoped<IProductManagerService, ProductManagerService>();
 
             var app = builder.Build();
 
@@ -71,7 +71,7 @@ namespace OrderService.Api
             // 🔥 Request logging
             app.UseSerilogRequestLogging();
 
-            // 🔥 Correlation ID
+            // 🔥 Correlation ID (same as OrderService)
             app.Use(async (context, next) =>
             {
                 var requestId = Guid.NewGuid().ToString();
@@ -84,7 +84,7 @@ namespace OrderService.Api
                 }
             });
 
-            // Global Exception Handling
+            // 🔥 Global Exception Handling
             app.UseMiddleware<GlobalExceptionMiddleware>();
 
             app.MapControllers();
