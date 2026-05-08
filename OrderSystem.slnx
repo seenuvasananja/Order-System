@@ -4,7 +4,12 @@
     <File Path=".gitignore" />
   </Folder>
   <Project Path="Application/OrderService.Application.csproj" />
+  <Project Path="AuthService.API/AuthService.API.csproj" />
   <Project Path="OrderService.Domain/OrderService.Domain.csproj" />
   <Project Path="OrderService.Infrastructure/OrderService.Infrastructure.csproj" />
   <Project Path="OrderService/OrderService.API.csproj" />
+  <Project Path="ProductService.API/ProductService.API.csproj" Id="5a1001f6-6b65-4fba-9e3b-f9d15f920681" />
+  <Project Path="ProductService.Application/ProductService.Application.csproj" Id="8661bf2c-6d99-48d5-8fb3-144d40ac7b76" />
+  <Project Path="ProductService.Domain/ProductService.Domain.csproj" Id="da8923aa-798a-44a6-a18d-4627d7f47ad4" />
+  <Project Path="ProductService.Infrastructure/ProductService.Infrastructure.csproj" Id="1b5ab3ba-78e6-4132-a514-6b08821c4a86" />
 </Solution>
